@@ -65,12 +65,11 @@ When deeper validation is required → consult Swagger via ApiAuthority.
 
 ---
 
-## 4️⃣ `prompts/Phase1/` → EXECUTION DIRECTIVE
-1- Task1.1.md
-2- Task1.2.md
-3- Task1.3.md
-4- Task1.4.md
-5- Task1.5.md
+## 4️⃣ `prompts/Phase7/` → EXECUTION DIRECTIVE
+1- Task7.1.md
+2- Task7.2.md
+3- Task7.3.md
+4- Task7.4.md
 
 
 Defines the active unit of engineering work.
@@ -123,7 +122,7 @@ Tasks may refine behavior — NEVER redefine architecture or contracts.
 Phases MUST be executed sequentially unless explicitly instructed otherwise.
 
 ```
-Phase0 → Phase1 → Phase2 → Phase3
+Phase0 → Phase1 → Phase2 → Phase3 -> Phase4 -> Phase5 -> Phase6 -> Phase7
 ```
 
 ### Forbidden Behavior:

@@ -15,7 +15,7 @@ Update this file at the end of every phase or task session.
 | Test Stack | Vitest, Testing Library, MSW v2, @vitest/coverage-v8 |
 | Build Tool | Vite + `@tailwindcss/vite` |
 | Package Manager | npm |
-| Path Alias | `@/` ’ `src/` |
+| Path Alias | `@/` â€™ `src/` |
 
 ---
 
@@ -25,8 +25,8 @@ Update this file at the end of every phase or task session.
 |-------|------|--------|-------|
 | Phase 0 | Project Foundation | COMPLETE | 0.1, 0.2, 0.3 |
 | Phase 1 | Infrastructure Layer | COMPLETE | 1.1, 1.2, 1.3, 1.4, 1.5 |
-| Phase 2 | Auth Module | PENDING |  |
-| Phase 3 | Product & Category Module | PENDING |  |
+| Phase 2 | Auth & Security Foundation | COMPLETE | 2.1, 2.2, 2.3, 2.4 |
+| Phase 3 | UI Infrastructure & Experience Reliability | COMPLETE | 3.1, 3.2, 3.3, 3.4 |
 | Phase 4 | Cart & Checkout Module | PENDING |  |
 | Phase 5 | Orders Module | PENDING |  |
 | Phase 6 | Admin Portal | PENDING |  |
@@ -123,7 +123,7 @@ Files created/modified:
 **`src/shared/api/axiosClient.ts`**  *(replaces deleted `axiosInstance.ts`)*
 - `axios.create` with `baseURL: env.apiBaseUrl`, `timeout: 10_000`, `Content-Type: application/json`
 - Request interceptor  injects `Authorization: Bearer <token>` from `useAuthStore.getState().token`
-- Response interceptor  401 ’ `logout()` + throw; all errors ’ `ApiErrorInstance`
+- Response interceptor  401 â€™ `logout()` + throw; all errors â€™ `ApiErrorInstance`
 
 Tests: `src/shared/api/__tests__/axiosClient.test.ts` (6 tests), `src/shared/api/__tests__/apiError.test.ts` (8 tests)
 
@@ -133,12 +133,12 @@ Tests: `src/shared/api/__tests__/axiosClient.test.ts` (6 tests), `src/shared/api
 
 **`src/shared/utils/errorMapper.ts`**
 - Maps `ApiErrorInstance` status codes to safe user messages
-- Status map: `0` (network), `401`, `403`, `404`, `500`  all others ’ generic fallback
+- Status map: `0` (network), `401`, `403`, `404`, `500`  all others â€™ generic fallback
 
 **`src/shared/components/ErrorBoundary.tsx`**
 - Class component (React requirement for render error catching)
-- `getDerivedStateFromError` ’ sets `hasError: true`
-- `handleReset` ’ clears error state
+- `getDerivedStateFromError` â€™ sets `hasError: true`
+- `handleReset` â€™ clears error state
 - Accepts optional `fallback` prop; default fallback has `role="alert"` and "Try again" button
 
 Tests: `src/shared/utils/__tests__/errorMapper.test.ts` (8 tests), `src/shared/components/__tests__/ErrorBoundary.test.tsx` (4 tests)
@@ -153,7 +153,7 @@ Tests: `src/shared/utils/__tests__/errorMapper.test.ts` (8 tests), `src/shared/c
 - Header comment: `// AUTO-GENERATED  DO NOT EDIT MANUALLY. Regenerate with: npm run generate:types`
 - `paths`, `components.schemas` (RegisterRequest, LoginRequest, AuthResponse, UserDto, CategoryDto, ProductDto, CartDto, OrderDto, etc.)
 
-Generation script: `npm run generate:types` ’ `openapi-typescript http://localhost:8080/api-docs -o src/shared/types/api.ts`
+Generation script: `npm run generate:types` â€™ `openapi-typescript http://localhost:8080/api-docs -o src/shared/types/api.ts`
 
 Tests: `src/shared/types/__tests__/api.types.test.ts` (5 type compilation tests via `expectTypeOf`)
 
@@ -163,7 +163,7 @@ Tests: `src/shared/types/__tests__/api.types.test.ts` (5 type compilation tests 
 
 **`src/shared/api/queryClient.ts`**
 - `staleTime: 60_000`, `retry: 2`, `refetchOnWindowFocus: false`
-- Global mutation `onError` ’ `toast.error(mapApiErrorToMessage(error))`
+- Global mutation `onError` â€™ `toast.error(mapApiErrorToMessage(error))`
 
 **`src/providers/QueryProvider.tsx`**
 - Wraps `QueryClientProvider`
@@ -283,17 +283,145 @@ Tests: `src/routes/__tests__/guards.test.tsx` (7 tests)
 
 ---
 
-## What Phase 2 Must Do
+---
 
-The `src/routes/index.tsx` children arrays are intentionally empty  ready for Phase 2 routes.
+## Phase 2 -- Auth & Security Foundation [COMPLETE]
 
-Phase 2 (Auth Module) will need to:
-- Implement login, register, logout pages under `src/modules/auth/`
-- Add auth routes to `routes/index.tsx` under `AuthLayout` and `PublicLayout`
-- Consume `POST /api/v1/auth/register` and `POST /api/v1/auth/login` via `axiosClient`
-- Use generated types from `src/shared/types/api.ts`
-- Store token via `useAuthStore.setAuth()`
+Validation gate (all passing):
+- `npm run typecheck` -- 0 errors
+- `npm run lint` -- 0 warnings
+- `npm run test` -- 16 files, 86 tests, all pass
+
+### Task 2.1 -- Auth Module [DONE]
+
+**`src/modules/auth/api/auth.api.ts`** -- `authApi.login` / `authApi.register`, types from `api.ts`
+**`src/modules/auth/utils/authSchemas.ts`** -- `loginSchema`, `registerSchema` (Zod)
+**`src/modules/auth/hooks/useLogin.ts`** -- useMutation; onSuccess navigates ADMIN->/admin, CUSTOMER->/
+**`src/modules/auth/hooks/useRegister.ts`** -- useMutation; onSuccess navigates to /
+**`src/modules/auth/hooks/useLogout.ts`** -- logout() + queryClient.clear() + navigate(/login)
+**`src/modules/auth/hooks/useCurrentUser.ts`** -- useShallow selector (avoids infinite re-render)
+**`src/modules/auth/pages/LoginPage.tsx`** -- RHF + zodResolver; loading state, accessible inputs
+**`src/modules/auth/pages/RegisterPage.tsx`** -- RHF + zodResolver; firstName/lastName/email/password
+
+### Task 2.2 -- Token Lifecycle [DONE]
+
+**`src/shared/api/axiosClient.ts`** -- 401 now calls toast.error('Session expired...')
+**`src/modules/auth/store/authStore.ts`** -- logout() broadcasts via BroadcastChannel('auth:logout')
+**`src/modules/auth/utils/authBroadcast.ts`** -- initAuthBroadcastSync() listener; called from main.tsx
+
+### Task 2.3 -- Route Protection [DONE]
+
+**`src/shared/components/UnauthorizedPage.tsx`** -- 403 page
+**`src/routes/guards/AdminRoute.tsx`** -- non-ADMIN now redirects to /403 (was /)
+**`src/routes/index.tsx`** -- /login, /register, /403 routes added; lazy-loaded
+**`src/main.tsx`** -- initAuthBroadcastSync() called on boot
+
+### Task 2.4 -- Auth Tests [DONE]
+
+| File | Tests |
+|------|-------|
+| authStore.test.ts | 6 |
+| authSchemas.test.ts | 10 |
+| useCurrentUser.test.ts | 3 |
+| useLogout.test.tsx | 2 |
+| LoginPage.test.tsx | 8 |
+| RegisterPage.test.tsx | 6 |
+| tokenLifecycle.test.ts | 2 |
+| **Phase 2 new tests** | **37** |
+
+Key fixes applied during Phase 2:
+- BroadcastChannel mock must use `class MockBC` (not arrow fn) for `new` compatibility
+- `useCurrentUser` uses `useShallow` from `zustand/react/shallow` to prevent infinite loop
+- MSW v2 node server intercepts XHR in jsdom via `@mswjs/interceptors`
+- token lifecycle tests use `@vitest-environment node`
 
 ---
 
-*Last updated: Phase 1 complete  49/49 tests passing, typecheck clean, lint clean.*
+---
+
+## Phase 3 -- UI Infrastructure & Experience Reliability [COMPLETE]
+
+Validation gate (all passing):
+- `npm run typecheck` -- 0 errors
+- `npm run lint` -- 0 warnings
+- `npm run test` -- 21 files, 139 tests, all pass
+
+### Task 3.1 -- Design System Foundation [DONE]
+
+**`src/styles/global.css`** -- Added Tailwind v4 `@theme` block with full color scale (primary/secondary/success/warning/error), font-family tokens
+
+**`src/shared/design-system/tokens/colors.ts`** -- TypeScript color constants matching CSS custom properties
+**`src/shared/design-system/tokens/typography.ts`** -- Font family, scale (xs--5xl), weights, line-heights
+**`src/shared/design-system/tokens/spacing.ts`** -- 4px-grid spacing scale (0--64)
+**`src/shared/design-system/tokens/index.ts`** -- Token barrel export
+
+**`src/shared/design-system/components/Button.tsx`**
+- 5 variants: primary / secondary / outline / ghost / danger
+- 3 sizes: sm / md / lg
+- loading state (aria-busy + spinner), disabled, leftIcon/rightIcon support
+- Full keyboard + aria accessibility
+
+**`src/shared/design-system/components/Input.tsx`**
+- label, error (aria-invalid + aria-describedby), helperText
+- Password toggle (show/hide with accessible button + icons)
+- leftAdornment / rightAdornment slots
+
+**`src/shared/design-system/components/Card.tsx`** -- padding and shadow variants, forwards HTML attrs
+**`src/shared/design-system/components/Container.tsx`** -- size variants (sm/md/lg/xl/full), padded flag
+**`src/shared/design-system/index.ts`** -- Design system barrel export
+
+Tests: `src/shared/design-system/__tests__/Button.test.tsx` (15), `Input.test.tsx` (10), `Card.test.tsx` (9)
+
+---
+
+### Task 3.2 -- Toast System [DONE]
+
+**`src/shared/components/toast/useToast.ts`**
+- Thin wrapper over sonner with fixed durations: success 4s, error 6s, loading Infinity
+- Exposes: success, error, loading, dismiss, promise
+
+**`src/shared/components/toast/index.ts`** -- Barrel export
+
+`<Toaster>` already mounted in `AppProviders.tsx` (Phase 1).
+`queryClient` global mutation error handler already calls `toast.error` (Phase 1).
+
+Tests: `src/shared/components/toast/__tests__/useToast.test.ts` (6)
+
+---
+
+### Task 3.3 -- Error Boundary [DONE]
+
+**`src/shared/components/error-boundary/index.ts`** -- Re-exports existing `ErrorBoundary` class component
+
+Existing implementation at `src/shared/components/ErrorBoundary.tsx` already satisfies all task requirements:
+- getDerivedStateFromError / componentDidCatch with console.error
+- Default fallback with role="alert", "Try again" button, no stack trace exposure
+- Optional `fallback` prop for custom UIs
+- Mounted at app root in `AppProviders`
+
+---
+
+### Task 3.4 -- Loading Skeletons [DONE]
+
+**`src/shared/components/skeleton/Skeleton.tsx`** -- Base primitive with animate-pulse, role=status, aria-busy=true
+**`src/shared/components/skeleton/TextSkeleton.tsx`** -- N-line text block, shorter last line
+**`src/shared/components/skeleton/CardSkeleton.tsx`** -- [image] + title + body lines + action row
+**`src/shared/components/skeleton/TableRowSkeleton.tsx`** -- rows x columns grid with natural width variation
+**`src/shared/components/skeleton/AvatarSkeleton.tsx`** -- Circular avatar + optional name/subtitle lines
+**`src/shared/components/skeleton/index.ts`** -- Barrel export
+
+Tests: `src/shared/components/skeleton/__tests__/Skeleton.test.tsx` (13)
+
+---
+
+## Phase 3 Added Constraints
+
+- Design system uses Tailwind v4 only -- no tailwind.config.js; tokens via `@theme` in global.css
+- All new UI code MUST import primitives from `@/shared/design-system`
+- Loading states MUST use skeleton components, NOT full-page spinners
+- Toast calls MUST go through `useToast` hook -- no direct sonner imports
+- ErrorBoundary wraps router root and module roots
+
+---
+
+*Last updated: Phase 3 complete -- 139/139 tests passing, typecheck clean, lint clean.*
