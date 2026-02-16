@@ -47,6 +47,43 @@ const ConfirmationPage = lazy(() =>
   })),
 );
 
+// Admin
+const AdminDashboardPage = lazy(() =>
+  import('@/modules/admin/pages/AdminDashboardPage').then((m) => ({
+    default: m.AdminDashboardPage,
+  })),
+);
+const AdminCategoriesPage = lazy(() =>
+  import('@/modules/admin/categories/pages/AdminCategoriesPage').then((m) => ({
+    default: m.AdminCategoriesPage,
+  })),
+);
+const AdminProductsPage = lazy(() =>
+  import('@/modules/admin/products/pages/AdminProductsPage').then((m) => ({
+    default: m.AdminProductsPage,
+  })),
+);
+const AdminOrdersPage = lazy(() =>
+  import('@/modules/admin/orders/pages/AdminOrdersPage').then((m) => ({
+    default: m.AdminOrdersPage,
+  })),
+);
+const AdminOrderDetailsPage = lazy(() =>
+  import('@/modules/admin/orders/pages/AdminOrderDetailsPage').then((m) => ({
+    default: m.AdminOrderDetailsPage,
+  })),
+);
+const AdminCustomersPage = lazy(() =>
+  import('@/modules/admin/customers/pages/AdminCustomersPage').then((m) => ({
+    default: m.AdminCustomersPage,
+  })),
+);
+const AdminCustomerDetailsPage = lazy(() =>
+  import('@/modules/admin/customers/pages/AdminCustomerDetailsPage').then((m) => ({
+    default: m.AdminCustomerDetailsPage,
+  })),
+);
+
 function withSuspense(Component: React.ComponentType) {
   return (
     <Suspense fallback={<LoadingFallback />}>
@@ -88,7 +125,13 @@ const router = createBrowserRouter([
           {
             element: <AdminLayout />,
             children: [
-              // Admin portal routes — populated in Phase 6
+              { path: '/admin', element: withSuspense(AdminDashboardPage) },
+              { path: '/admin/categories', element: withSuspense(AdminCategoriesPage) },
+              { path: '/admin/products', element: withSuspense(AdminProductsPage) },
+              { path: '/admin/orders', element: withSuspense(AdminOrdersPage) },
+              { path: '/admin/orders/:externalId', element: withSuspense(AdminOrderDetailsPage) },
+              { path: '/admin/customers', element: withSuspense(AdminCustomersPage) },
+              { path: '/admin/customers/:id', element: withSuspense(AdminCustomerDetailsPage) },
             ],
           },
         ],

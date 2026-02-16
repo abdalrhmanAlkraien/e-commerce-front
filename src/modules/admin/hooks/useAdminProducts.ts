@@ -1,15 +1,27 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   adminApi,
   type AdminCreateProductRequest,
   type AdminUpdateProductRequest,
+  type AdminListProductsParams,
 } from '../api/admin.api';
 import { mapApiErrorToMessage } from '@/shared/utils/errorMapper';
 
 export const adminProductKeys = {
   all: ['admin', 'products'] as const,
+  list: (params?: AdminListProductsParams) =>
+    [...adminProductKeys.all, 'list', params] as const,
 };
+
+/** Lists products in the admin panel. Requires ADMIN role. */
+export function useAdminListProducts(params?: AdminListProductsParams) {
+  return useQuery({
+    queryKey: adminProductKeys.list(params),
+    queryFn: () => adminApi.listProducts(params),
+    staleTime: 30_000,
+  });
+}
 
 /** Creates a new product. Requires ADMIN role. */
 export function useAdminCreateProduct() {

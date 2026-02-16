@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { toast } from 'sonner';
 import { queryClient } from '../queryClient';
 import { QueryClient } from '@tanstack/react-query';
 
@@ -30,5 +31,18 @@ describe('queryClient', () => {
   it('has a mutation onError handler', () => {
     const defaults = queryClient.getDefaultOptions();
     expect(typeof defaults.mutations?.onError).toBe('function');
+  });
+
+  it('mutation onError invokes toast.error with a mapped message', () => {
+    const toastSpy = vi.spyOn(toast, 'error').mockImplementation(() => undefined);
+
+    const defaults = queryClient.getDefaultOptions();
+    const onError = defaults.mutations?.onError as (err: unknown) => void;
+    onError(new Error('test error'));
+
+    expect(toastSpy).toHaveBeenCalledOnce();
+    expect(toastSpy).toHaveBeenCalledWith(expect.any(String));
+
+    vi.restoreAllMocks();
   });
 });

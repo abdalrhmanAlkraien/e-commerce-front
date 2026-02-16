@@ -65,11 +65,8 @@ When deeper validation is required → consult Swagger via ApiAuthority.
 
 ---
 
-## 4️⃣ `prompts/Phase7/` → EXECUTION DIRECTIVE
-1- Task7.1.md
-2- Task7.2.md
-3- Task7.3.md
-4- Task7.4.md
+## 4️⃣ `prompts/Fix/` → EXECUTION DIRECTIVE
+1- Fix0.md
 
 
 Defines the active unit of engineering work.
@@ -84,6 +81,11 @@ prompts/
 
   Phase1/
     Task1.1.md
+
+  Fix/
+    Fix0.md
+    Fix1.md
+    Fix2.md
 ```
 
 Each task represents a **production engineering operation**.

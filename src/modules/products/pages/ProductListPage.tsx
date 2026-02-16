@@ -103,7 +103,7 @@ function ProductListContent() {
             <CardSkeleton key={i} />
           ))}
         </div>
-      ) : !data || data.content.length === 0 ? (
+      ) : !data || data.items.length === 0 ? (
         <div className="py-20 text-center">
           <p className="text-secondary-500">No products found.</p>
           <Button
@@ -120,7 +120,7 @@ function ProductListContent() {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {data.content.map((product) => (
+            {data.items.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

@@ -4,7 +4,7 @@ import type { components } from '@/shared/types/api';
 export type ProductDto = components['schemas']['ProductDto'];
 
 export interface PaginatedProducts {
-  content: ProductDto[];
+  items: ProductDto[];
   total: number;
   page: number;
   pageSize: number;

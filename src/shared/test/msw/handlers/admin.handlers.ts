@@ -1,5 +1,12 @@
 import { http, HttpResponse } from 'msw';
-import { mockProduct, mockOrder, mockCategory } from '../fixtures';
+import {
+  mockProduct,
+  mockOrder,
+  mockCategory,
+  mockCustomer,
+  mockCustomerPage,
+  mockOrderPage,
+} from '../fixtures';
 
 const BASE = 'http://localhost:8080';
 
@@ -47,7 +54,7 @@ export const adminHandlers = [
 
   // ── Admin Orders ──────────────────────────────────────────────────────────
   http.get(`${BASE}/api/v1/admin/orders`, () =>
-    HttpResponse.json({ items: [mockOrder], total: 1, page: 1, pageSize: 20 }),
+    HttpResponse.json(mockOrderPage),
   ),
 
   http.get(`${BASE}/api/v1/admin/orders/:externalId`, () =>
@@ -58,4 +65,30 @@ export const adminHandlers = [
     const body = await request.json() as { status: string };
     return HttpResponse.json({ ...mockOrder, status: body.status });
   }),
+
+  http.post(`${BASE}/api/v1/admin/orders/:externalId/refund`, () =>
+    HttpResponse.json({ ...mockOrder, status: 'REFUNDED' }),
+  ),
+
+  // ── Admin Customers ───────────────────────────────────────────────────────
+  http.get(`${BASE}/api/v1/admin/customers`, () =>
+    HttpResponse.json(mockCustomerPage),
+  ),
+
+  http.get(`${BASE}/api/v1/admin/customers/:id`, () =>
+    HttpResponse.json(mockCustomer),
+  ),
+
+  http.put(`${BASE}/api/v1/admin/customers/:id/enable`, () =>
+    HttpResponse.json({ ...mockCustomer, enabled: true }),
+  ),
+
+  http.put(`${BASE}/api/v1/admin/customers/:id/disable`, () =>
+    HttpResponse.json({ ...mockCustomer, enabled: false }),
+  ),
+
+  // ── Content Upload ────────────────────────────────────────────────────────
+  http.post(`${BASE}/api/v1/content/upload`, () =>
+    HttpResponse.json({ id: 'file-1', url: 'https://cdn.example.com/file-1.jpg' }),
+  ),
 ];

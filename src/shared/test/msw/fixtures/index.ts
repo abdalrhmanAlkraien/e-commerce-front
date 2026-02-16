@@ -112,3 +112,34 @@ export const mockOrder: components['schemas']['OrderDto'] = {
   shippingAddress: mockAddress,
   createdAt: new Date().toISOString(),
 };
+
+export const mockOrderPage = {
+  items: [mockOrder],
+  total: 1,
+  page: 1,
+  pageSize: 20,
+};
+
+// ── Admin customers ───────────────────────────────────────────────────────────
+
+export const mockCustomer = {
+  id: 'user-cust-1',
+  email: 'customer@example.com',
+  role: 'CUSTOMER' as const,
+  enabled: true,
+  createdAt: '2024-01-01T00:00:00.000Z',
+};
+
+export const mockDisabledCustomer = {
+  ...mockCustomer,
+  id: 'user-cust-2',
+  email: 'disabled@example.com',
+  enabled: false,
+};
+
+export const mockCustomerPage = {
+  items: [mockCustomer],
+  total: 1,
+  page: 1,
+  pageSize: 20,
+};

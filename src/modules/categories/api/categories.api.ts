@@ -13,6 +13,6 @@ export const categoriesApi = {
     const response = await axiosClient.get<CategoryDto[]>('/api/v1/public/categories', {
       params,
     });
-    return response.data.content;
+    return response.data;
   },
 };

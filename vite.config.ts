@@ -30,6 +30,10 @@ export default defineConfig({
         '**/*.d.ts',
         'src/main.tsx',
         'vite.config.ts',
+        // Barrel re-export files — no executable logic
+        'src/shared/design-system/index.ts',
+        'src/shared/design-system/tokens/index.ts',
+        'src/shared/components/skeleton/index.ts',
       ],
     },
   },
